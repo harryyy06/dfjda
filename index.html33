@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>KITEAI Quiz</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #fffdd0; /* Cream color */
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #654321; /* Brown */
+      margin: 0;
+    }
+
+    .quiz-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 600px;
+      padding: 40px;
+      text-align: center;
+      transition: 0.4s ease;
+    }
+
+    h1 {
+      color: #654321;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #654321;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: #654321;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #4b2e05;
+    }
+
+    .option {
+      background: #f8f6f0;
+      border: 2px solid transparent;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: 0.3s;
+      color: #654321;
+    }
+
+    .option:hover {
+      background: #f0e6d6;
+    }
+
+    .option.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .option.wrong {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .question {
+      font-weight: 600;
+      color: #654321;
+      margin-bottom: 20px;
+    }
+
+    .result {
+      font-size: 20px;
+      font-weight: bold;
+      color: #654321;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container" id="quiz">
+    <h1>KITEAI</h1>
+    <p>Test Your Knowledge</p>
+
+    <div id="start-screen">
+      <h2>Welcome to KITEAI Quiz!</h2>
+      <p>Test your knowledge with our interactive quiz. You'll get immediate feedback on each question and see your final score at the end.</p>
+      <button id="start-btn">Start Quiz</button>
+    </div>
+
+    <div id="question-screen" class="hidden">
+      <p id="question-number"></p>
+      <p class="question" id="question-text"></p>
+      <div id="options-container"></div>
+      <button id="next-btn" class="hidden">Next Question</button>
+    </div>
+
+    <div id="result-screen" class="hidden">
+      <h2>Quiz Completed!</h2>
+      <p class="result" id="score-text"></p>
+      <button id="restart-btn">Restart Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      { question: "🤖 What does Kite primarily focus on?", options: ["Gaming NFTs", "AI and Agentic Internet", "Social Media Tokens", "DeFi Yield Farming"], correct: 1 },
+      { question: "👥 Which audience does Kite primarily target?", options: ["AI users and blockchain developers", "Casual gamers", "Social media influencers", "Traditional banks"], correct: 0 },
+      { question: "💼 What kind of payments infrastructure does Kite eliminate?", options: ["Simple wallet transfers", "Overcomplicated, high-fee systems", "Mobile recharge systems", "Centralized fiat rails"], correct: 1 },
+      { question: "💳 What type of settlements does Kite support?", options: ["Crypto-to-fiat only", "High-fee token transfers", "Stablecoin-native instant micropayments", "Only BTC transactions"], correct: 2 },
+      { question: "🧩 Kite’s architecture is designed to be:", options: ["Rigid and centralized", "Modular and flexible", "Private and isolated", "Layer-0 only"], correct: 1 }
+    ];
+
+    const startBtn = document.getElementById("start-btn");
+    const questionScreen = document.getElementById("question-screen");
+    const startScreen = document.getElementById("start-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const questionNumber = document.getElementById("question-number");
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const scoreText = document.getElementById("score-text");
+    const restartBtn = document.getElementById("restart-btn");
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    startBtn.addEventListener("click", startQuiz);
+    nextBtn.addEventListener("click", nextQuestion);
+    restartBtn.addEventListener("click", restartQuiz);
+
+    function startQuiz() {
+      startScreen.classList.add("hidden");
+      questionScreen.classList.remove("hidden");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const current = quizData[currentQuestion];
+      questionNumber.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+      questionText.textContent = current.question;
+      optionsContainer.innerHTML = "";
+
+      current.options.forEach((option, index) => {
+        const button = document.createElement("div");
+        button.classList.add("option");
+        button.textContent = option;
+        button.addEventListener("click", () => selectOption(index));
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    function selectOption(selected) {
+      const current = quizData[currentQuestion];
+      const options = document.querySelectorAll(".option");
+
+      options.forEach((option, index) => {
+        option.style.pointerEvents = "none";
+        if (index === current.correct) {
+          option.classList.add("correct");
+        } else if (index === selected && index !== current.correct) {
+          option.classList.add("wrong");
+        }
+      });
+
+      if (selected === current.correct) score++;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      nextBtn.classList.add("hidden");
+
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      questionScreen.classList.add("hidden");
+      resultScreen.classList.remove("hidden");
+      scoreText.textContent = `Your Score: ${score} / ${quizData.length}`;
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      resultScreen.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
